@@ -1,16 +1,75 @@
-import React from "react";
-import type { FC } from "react";
-import styled from "styled-components";
-import colors from "styles/colors";
-import Button from "components/Button";
+import React, { useEffect, useState } from 'react';
+import type { FC } from 'react';
+import styled from 'styled-components';
+import colors from 'styles/colors';
+import Button from 'components/Button';
+import { useLocation } from 'react-router';
 
-const DetailPage: FC = () => {
+interface LinkData {
+  created_at: number;
+  key: string | undefined;
+  expires_at: number;
+  download_count: number;
+  count: number;
+  size: number;
+  summary: string;
+  thumbnailUrl: string;
+  files: {
+    key: string;
+    thumbnailUrl: string;
+    name: string;
+    size: number;
+  }[];
+  sent: {
+    subject: string;
+    content: string;
+    emails: string[];
+  };
+}
+
+interface DetailProps {
+  data: LinkData[];
+}
+
+const DetailPage = ({ data }: DetailProps) => {
+  // const [filesData, setFilesData] = useState(0);
+  const location = useLocation();
+  const keyValue = location.pathname.slice(1); //홈페이지의 키값
+  // console.log(data); // 데이터도 받아왔으니
+  const detailData = data.filter((item) => item.key === keyValue);
+
+  const filesData = () => {
+    let result: number = 0;
+    for (let i = 0; i < detailData[0].files.length; i++) {
+      result += detailData[0].files[i].size;
+    }
+    return result;
+  };
+
+  function formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  if (!detailData[0]) {
+    return null;
+  }
+
+  console.log(detailData[0].summary);
+
   return (
     <>
       <Header>
         <LinkInfo>
-          <Title>로고파일</Title>
-          <Url>localhost/7LF4MDLY</Url>
+          <Title>{detailData[0].summary}</Title>
+          <Url>localhost/{detailData[0].key}</Url>
         </LinkInfo>
         <DownloadButton>
           <img referrerPolicy="no-referrer" src="/svgs/download.svg" alt="" />
@@ -32,8 +91,8 @@ const DetailPage: FC = () => {
           </LinkImage>
         </Descrition>
         <ListSummary>
-          <div>총 1개의 파일</div>
-          <div>10.86KB</div>
+          <div>총 {detailData[0].files.length}개의 파일</div>
+          <div>{formatBytes(filesData())}</div>
         </ListSummary>
         <FileList>
           <FileListItem>

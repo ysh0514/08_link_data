@@ -35,7 +35,7 @@ const LinkPage: FC = () => {
   const navigate = useNavigate();
   const a = useMatch('/:key');
 
-  console.log(a);
+  // console.log(a);
   useEffect(() => {
     axios.get('/homeworks/links').then((res) => {
       setData(res.data);
@@ -74,48 +74,50 @@ const LinkPage: FC = () => {
         <TableBody>
           {data &&
             data.map((ele: LinkData, idx: number) => (
-              <TableRow key={idx}>
-                <TableCell>
-                  <LinkInfo>
-                    <LinkImage>
-                      <img
-                        referrerPolicy="no-referrer"
-                        src="/svgs/default.svg"
-                        alt=""
-                      />
-                    </LinkImage>
-                    <LinkTexts>
-                      <Link to={`/${ele.key}`}>
-                        <LinkTitle>{ele.summary}</LinkTitle>
-                      </Link>
-                      <LinkUrl>localhost/{ele.key}</LinkUrl>
-                    </LinkTexts>
-                  </LinkInfo>
-                  <span />
-                </TableCell>
-                <TableCell>
-                  <span>파일개수</span>
-                  <span>{ele.count.toLocaleString()}</span>
-                </TableCell>
-                <TableCell>
-                  <span>파일사이즈</span>
-                  <span>{formatBytes(ele.size)}</span>
-                </TableCell>
-                <TableCell>
-                  <span>유효기간</span>
-                  <span>48시간 00분</span>
-                </TableCell>
-                <TableCell>
-                  <span>받은사람</span>
-                  <LinkReceivers>
-                    <Avatar text="recruit@estmob.com" />
-                  </LinkReceivers>
-                </TableCell>
-              </TableRow>
+              <>
+                <TableRow key={idx}>
+                  <TableCell>
+                    <LinkInfo>
+                      <LinkImage>
+                        <img
+                          referrerPolicy="no-referrer"
+                          src="/svgs/default.svg"
+                          alt=""
+                        />
+                      </LinkImage>
+                      <LinkTexts>
+                        <Link to={`/${ele.key}`}>
+                          <LinkTitle>{ele.summary}</LinkTitle>
+                        </Link>
+                        <LinkUrl>localhost/{ele.key}</LinkUrl>
+                      </LinkTexts>
+                    </LinkInfo>
+                    <span />
+                  </TableCell>
+                  <TableCell>
+                    <span>파일개수</span>
+                    <span>{ele.count.toLocaleString()}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span>파일사이즈</span>
+                    <span>{formatBytes(ele.size)}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span>유효기간</span>
+                    <span>48시간 00분</span>
+                  </TableCell>
+                  <TableCell>
+                    <span>받은사람</span>
+                    <LinkReceivers>
+                      <Avatar text="recruit@estmob.com" />
+                    </LinkReceivers>
+                  </TableCell>
+                </TableRow>
+              </>
             ))}
         </TableBody>
       </Table>
-      {a && <DetailPage />}
+      {a && <DetailPage key={Date.now() + '1'} data={data} />}
     </>
   );
 };
