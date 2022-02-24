@@ -14,7 +14,7 @@ function App() {
         <Container>
           <Routes>
             <Route path="/" element={<LinkPage />} />
-            <Route path="/:key" element={<DetailPage />} />
+            <Route path="/:key" element={<LinkPage />} />
           </Routes>
         </Container>
       </BrowserRouter>
