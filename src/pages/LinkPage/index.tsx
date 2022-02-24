@@ -1,10 +1,63 @@
-import React from "react";
-import type { FC } from "react";
-import Avatar from "components/Avatar";
-import styled from "styled-components";
-import colors from "styles/colors";
+import React, { useEffect, useState } from 'react';
+import type { FC } from 'react';
+import Avatar from 'components/Avatar';
+import styled from 'styled-components';
+import colors from 'styles/colors';
+import axios from 'axios';
+import { useMatch, useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
+import DetailPage from 'pages/DetailPage';
+
+interface LinkData {
+  created_at: number;
+  key: string | undefined;
+  expires_at: number;
+  download_count: number;
+  count: number;
+  size: number;
+  summary: string;
+  thumbnailUrl: string;
+  files: {
+    key: string;
+    thumbnailUrl: string;
+    name: string;
+    size: number;
+  }[];
+  sent: {
+    subject: string;
+    content: string;
+    emails: string[];
+  };
+}
 
 const LinkPage: FC = () => {
+  const [data, setData] = useState<LinkData[]>([]);
+  const navigate = useNavigate();
+  const a = useMatch('/:key');
+
+  console.log(a);
+  useEffect(() => {
+    axios.get('/homeworks/links').then((res) => {
+      setData(res.data);
+    });
+  }, []);
+
+  function formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  // const clickFile = (key: string) => {
+  //   navigate(key);
+  // };
+
   return (
     <>
       <Title>마이 링크</Title>
@@ -19,116 +72,50 @@ const LinkPage: FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
+          {data &&
+            data.map((ele: LinkData, idx: number) => (
+              <TableRow key={idx}>
+                <TableCell>
+                  <LinkInfo>
+                    <LinkImage>
+                      <img
+                        referrerPolicy="no-referrer"
+                        src="/svgs/default.svg"
+                        alt=""
+                      />
+                    </LinkImage>
+                    <LinkTexts>
+                      <Link to={`/${ele.key}`}>
+                        <LinkTitle>{ele.summary}</LinkTitle>
+                      </Link>
+                      <LinkUrl>localhost/{ele.key}</LinkUrl>
+                    </LinkTexts>
+                  </LinkInfo>
+                  <span />
+                </TableCell>
+                <TableCell>
+                  <span>파일개수</span>
+                  <span>{ele.count.toLocaleString()}</span>
+                </TableCell>
+                <TableCell>
+                  <span>파일사이즈</span>
+                  <span>{formatBytes(ele.size)}</span>
+                </TableCell>
+                <TableCell>
+                  <span>유효기간</span>
+                  <span>48시간 00분</span>
+                </TableCell>
+                <TableCell>
+                  <span>받은사람</span>
+                  <LinkReceivers>
+                    <Avatar text="recruit@estmob.com" />
+                  </LinkReceivers>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
+      {a && <DetailPage />}
     </>
   );
 };
