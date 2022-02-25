@@ -95,13 +95,15 @@ const DetailPage = ({ data }: DetailProps) => {
           <div>{formatBytes(filesData())}</div>
         </ListSummary>
         <FileList>
-          <FileListItem>
-            <FileItemInfo>
-              <span />
-              <span>logo.png</span>
-            </FileItemInfo>
-            <FileItemSize>10.86KB</FileItemSize>
-          </FileListItem>
+          {detailData[0].files.map((ele, idx) => (
+            <FileListItem key={idx}>
+              <FileItemInfo>
+                <span />
+                <span>{ele.name}</span>
+              </FileItemInfo>
+              <FileItemSize>{formatBytes(ele.size)}</FileItemSize>
+            </FileListItem>
+          ))}
         </FileList>
       </Article>
     </>

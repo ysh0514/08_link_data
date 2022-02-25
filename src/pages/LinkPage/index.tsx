@@ -4,9 +4,11 @@ import Avatar from 'components/Avatar';
 import styled from 'styled-components';
 import colors from 'styles/colors';
 import axios from 'axios';
-import { useMatch, useNavigate } from 'react-router';
+import { useMatch } from 'react-router';
 import { Link } from 'react-router-dom';
 import DetailPage from 'pages/DetailPage';
+import useInterval from 'use-interval';
+import { getSeconds } from 'date-fns';
 
 interface LinkData {
   created_at: number;
@@ -32,12 +34,25 @@ interface LinkData {
 
 const LinkPage: FC = () => {
   const [data, setData] = useState<LinkData[]>([]);
-  const navigate = useNavigate();
-  const a = useMatch('/:key');
+  const detailMatch = useMatch('/:key');
+  const [fetch, setFetch] = useState(true);
 
-  // console.log(a);
   useEffect(() => {
-    axios.get('/homeworks/links').then((res) => {
+    const nowTime = new Date(Date.now()).getSeconds();
+    setTimeout(() => {
+      setFetch((prev) => !prev);
+      setInterval(() => {
+        setFetch((prev) => !prev);
+        console.log('60초마다 갱신중입니다');
+      }, 60000);
+      console.log(`${60000 - nowTime * 1000}초 후에 갱신되었음 갱신되엇음`);
+    }, 60000 - nowTime * 1000);
+    console.log(nowTime);
+    console.log(`${60000 - nowTime * 1000}초 후에 갱신되었음 갱신되엇음`);
+  }, []);
+
+  useEffect(() => {
+    axios.get('http://localhost:3000/data/data.json').then((res) => {
       setData(res.data);
     });
   }, []);
@@ -54,70 +69,121 @@ const LinkPage: FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
-  // const clickFile = (key: string) => {
-  //   navigate(key);
-  // };
+  const dateTimeFormatter = (time: number) => {
+    const second = new Date(time).getSeconds();
+    const day = Number(
+      ((time * 1000 - Date.now()) / (1000 * 60 * 60 * 24)).toFixed()
+    );
+    const hour = Number(
+      ((time * 1000 - Date.now()) / (1000 * 60 * 60)).toFixed()
+    );
+    const min = Number(
+      (((time * 1000 - Date.now()) / (1000 * 60)) % 60).toFixed()
+    );
+
+    if (hour > 0 && hour < 48) {
+      return `${hour}시간 ${min < 10 ? '0' + min : min}분`;
+    } else if (hour >= 48) {
+      return `${day}일`;
+    } else {
+      return '만료됨';
+    }
+  };
+
+  const copyUrl = (text: string) => {
+    if (text === '만료됨') return;
+
+    navigator.clipboard.writeText(text).then(
+      function () {
+        alert(text + ' 주소가 복사 되었습니다.');
+      },
+      function () {
+        console.log('error');
+      }
+    );
+  };
 
   return (
     <>
-      <Title>마이 링크</Title>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>제목</TableCell>
-            <TableCell>파일개수</TableCell>
-            <TableCell>크기</TableCell>
-            <TableCell>유효기간</TableCell>
-            <TableCell>받은사람</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data &&
-            data.map((ele: LinkData, idx: number) => (
-              <>
-                <TableRow key={idx}>
-                  <TableCell>
-                    <LinkInfo>
-                      <LinkImage>
-                        <img
-                          referrerPolicy="no-referrer"
-                          src="/svgs/default.svg"
-                          alt=""
-                        />
-                      </LinkImage>
-                      <LinkTexts>
-                        <Link to={`/${ele.key}`}>
-                          <LinkTitle>{ele.summary}</LinkTitle>
-                        </Link>
-                        <LinkUrl>localhost/{ele.key}</LinkUrl>
-                      </LinkTexts>
-                    </LinkInfo>
-                    <span />
-                  </TableCell>
-                  <TableCell>
-                    <span>파일개수</span>
-                    <span>{ele.count.toLocaleString()}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span>파일사이즈</span>
-                    <span>{formatBytes(ele.size)}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span>유효기간</span>
-                    <span>48시간 00분</span>
-                  </TableCell>
-                  <TableCell>
-                    <span>받은사람</span>
-                    <LinkReceivers>
-                      <Avatar text="recruit@estmob.com" />
-                    </LinkReceivers>
-                  </TableCell>
-                </TableRow>
-              </>
-            ))}
-        </TableBody>
-      </Table>
-      {a && <DetailPage key={Date.now() + '1'} data={data} />}
+      {!detailMatch ? (
+        <>
+          <Title>마이 링크</Title>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>제목</TableCell>
+                <TableCell>파일개수</TableCell>
+                <TableCell>크기</TableCell>
+                <TableCell>유효기간</TableCell>
+                <TableCell>받은사람</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data &&
+                data.map((ele: LinkData, idx: number) => {
+                  const hour = Number(
+                    (
+                      (ele.expires_at * 1000 - Date.now()) /
+                      (1000 * 60 * 60)
+                    ).toFixed()
+                  );
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <LinkInfo>
+                          <LinkImage>
+                            <img
+                              referrerPolicy="no-referrer"
+                              src="/svgs/default.svg"
+                              alt=""
+                            />
+                          </LinkImage>
+                          <LinkTexts>
+                            <Link to={`/${ele.key}`}>
+                              <LinkTitle>{ele.summary}</LinkTitle>
+                            </Link>
+                            <LinkUrl
+                              onClick={() =>
+                                copyUrl(
+                                  hour < 0 ? '만료됨' : `localhost/${ele.key}`
+                                )
+                              }
+                            >
+                              {hour < 0 ? '만료됨' : `localhost/${ele.key}`}
+                            </LinkUrl>
+                          </LinkTexts>
+                        </LinkInfo>
+                        <span />
+                      </TableCell>
+                      <TableCell>
+                        <span>파일개수</span>
+                        <span>{ele.count.toLocaleString()}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>파일사이즈</span>
+                        <span>{formatBytes(ele.size)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>유효기간</span>
+                        <span>{dateTimeFormatter(ele.expires_at)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>받은사람</span>
+                        <LinkReceivers>
+                          {ele.sent && ele.sent.emails[0] && (
+                            <Avatar text={ele.sent.emails[0]} />
+                          )}
+                        </LinkReceivers>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </>
+      ) : (
+        <DetailPage key={Date.now() + '1'} data={data} />
+      )}
     </>
   );
 };
