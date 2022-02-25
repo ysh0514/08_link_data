@@ -7,6 +7,8 @@ import axios from 'axios';
 import { useMatch } from 'react-router';
 import { Link } from 'react-router-dom';
 import DetailPage from 'pages/DetailPage';
+import { copyUrl } from 'utils/utils';
+import { BASE_URL } from 'constants/constants';
 
 interface LinkData {
   created_at: number;
@@ -41,15 +43,12 @@ const LinkPage: FC = () => {
       setFetch((prev) => !prev);
       setInterval(() => {
         setFetch((prev) => !prev);
-        // console.log('60초마다 갱신중입니다');
       }, 15000);
-      // console.log(`${60 - nowTime}초 후에 갱신되었음 갱신되엇음`);
     }, 60000 - nowTime * 1000);
-    // console.log(`${60 - nowTime}초 후에 갱신되었음 갱신되엇음`);
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/data/data.json').then((res) => {
+    axios.get('/homeworks/links').then((res) => {
       setData(res.data);
     });
   }, []);
@@ -77,10 +76,6 @@ const LinkPage: FC = () => {
       (((time * 1000 - Date.now()) / (1000 * 60)) % 60).toFixed()
     );
 
-    const second = Number(((time * 1000 - Date.now()) / 1000).toFixed());
-    // const min = +((second / 60) % 60).toFixed(0);
-    // const hour = +(second / (60 * 60)).toFixed(0);
-    // const day = +(second / (60 * 60 * 24)).toFixed(0);
     if (hour > 0 && hour < 48) {
       return `${hour}시간 ${min < 10 ? '0' + min : min}분`;
     } else if (hour >= 48) {
@@ -88,19 +83,6 @@ const LinkPage: FC = () => {
     } else {
       return '만료됨';
     }
-  };
-
-  const copyUrl = (text: string) => {
-    if (text === '만료됨') return;
-
-    navigator.clipboard.writeText(text).then(
-      function () {
-        alert(text + ' 주소가 복사 되었습니다.');
-      },
-      function () {
-        console.log('error');
-      }
-    );
   };
 
   return (
@@ -134,7 +116,11 @@ const LinkPage: FC = () => {
                           <LinkImage>
                             <img
                               referrerPolicy="no-referrer"
-                              src="/svgs/default.svg"
+                              src={
+                                ele.thumbnailUrl.slice(-3) !== 'svg'
+                                  ? ele.thumbnailUrl
+                                  : '/svgs/default.svg'
+                              }
                               alt=""
                             />
                           </LinkImage>
@@ -145,11 +131,11 @@ const LinkPage: FC = () => {
                             <LinkUrl
                               onClick={() =>
                                 copyUrl(
-                                  hour < 0 ? '만료됨' : `localhost/${ele.key}`
+                                  hour < 0 ? '만료됨' : `${BASE_URL}/${ele.key}`
                                 )
                               }
                             >
-                              {hour < 0 ? '만료됨' : `localhost/${ele.key}`}
+                              {hour < 0 ? '만료됨' : `${BASE_URL}/${ele.key}`}
                             </LinkUrl>
                           </LinkTexts>
                         </LinkInfo>
