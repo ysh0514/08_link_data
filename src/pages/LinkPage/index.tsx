@@ -48,11 +48,9 @@ const LinkPage: FC = () => {
   }, []);
 
   useEffect(() => {
-    axios
-      .get(process.env.REACT_APP_DB_HOST + '/homeworks/links')
-      .then((res) => {
-        setData(res.data);
-      });
+    axios.get('http://localhost:4000/link').then((res) => {
+      setData(res.data);
+    });
   }, []);
 
   function formatBytes(bytes: number, decimals = 2) {
