@@ -57,53 +57,110 @@ const DetailPage = ({ data }: DetailProps) => {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
+  const onDownloadClick = () => {
+    alert('다운로드 되었습니다.');
+  };
 
   if (!detailData[0]) {
     return null;
   }
 
-  console.log(detailData[0].summary);
+  const formatDate = (dateTime: any) => {
+    const resultDateTime = new Date(dateTime * 1000);
+    const date = String(new Date());
+    let formatted_date =
+      resultDateTime.getFullYear() +
+      '년 ' +
+      (resultDateTime.getMonth() + 1) +
+      '월 ' +
+      resultDateTime.getDate() +
+      '일 ' +
+      (resultDateTime.getHours() < 10
+        ? '0' + resultDateTime.getHours()
+        : resultDateTime.getHours()) +
+      ':' +
+      (resultDateTime.getMinutes() < 10
+        ? '0' + resultDateTime.getMinutes()
+        : resultDateTime.getMinutes()) +
+      ' ' +
+      date.slice(-14, -11) +
+      ':' +
+      date.slice(-11, -9);
+    return formatted_date;
+  };
+
+  const hour = Number(
+    (
+      (detailData[0].expires_at * 1000 - Date.now()) /
+      (1000 * 60 * 60)
+    ).toFixed()
+  );
+
+  console.log(detailData[0].thumbnailUrl.slice(-3) === 'svg');
 
   return (
     <>
       <Header>
         <LinkInfo>
-          <Title>{detailData[0].summary}</Title>
+          <Title>
+            {detailData[0].sent?.subject
+              ? detailData[0].sent?.subject
+              : detailData[0].summary}
+          </Title>
           <Url>localhost/{detailData[0].key}</Url>
         </LinkInfo>
-        <DownloadButton>
-          <img referrerPolicy="no-referrer" src="/svgs/download.svg" alt="" />
-          받기
-        </DownloadButton>
+        {hour > 0 && (
+          <DownloadButton onClick={onDownloadClick}>
+            <img referrerPolicy="no-referrer" src="/svgs/download.svg" alt="" />
+            받기
+          </DownloadButton>
+        )}
       </Header>
       <Article>
         <Descrition>
           <Texts>
             <Top>링크 생성일</Top>
-            <Bottom>2022년 1월 12일 22:36 +09:00</Bottom>
+            <Bottom>
+              {' '}
+              {formatDate(new Date(detailData[0] && detailData[0].created_at))}
+            </Bottom>
             <Top>메세지</Top>
-            <Bottom>로고파일 전달 드립니다.</Bottom>
+            <Bottom>
+              {detailData[0].sent?.content
+                ? detailData[0].sent?.content
+                : detailData[0].summary}
+            </Bottom>
             <Top>다운로드 횟수</Top>
-            <Bottom>1</Bottom>
+            <Bottom>{detailData[0].count}</Bottom>
           </Texts>
           <LinkImage>
-            <Image />
+            <Image
+              thumbNail={
+                detailData[0].thumbnailUrl.slice(-3) !== 'svg'
+                  ? detailData[0].thumbnailUrl
+                  : ''
+              }
+            />
           </LinkImage>
         </Descrition>
-        <ListSummary>
-          <div>총 {detailData[0].files.length}개의 파일</div>
-          <div>{formatBytes(filesData())}</div>
-        </ListSummary>
+        {hour > 0 && (
+          <ListSummary>
+            <div>총 {detailData[0].files.length}개의 파일</div>
+            <div>{formatBytes(filesData())}</div>
+          </ListSummary>
+        )}
         <FileList>
-          {detailData[0].files.map((ele, idx) => (
-            <FileListItem key={idx}>
-              <FileItemInfo>
-                <span />
-                <span>{ele.name}</span>
-              </FileItemInfo>
-              <FileItemSize>{formatBytes(ele.size)}</FileItemSize>
-            </FileListItem>
-          ))}
+          {hour > 0 &&
+            detailData[0].files.map((ele, idx) => (
+              <FileListItem key={idx}>
+                <FileItemInfo>
+                  <span />
+
+                  <span>{ele.name}</span>
+                </FileItemInfo>
+                <FileItemSize>{formatBytes(ele.size)}</FileItemSize>
+              </FileListItem>
+            ))}
         </FileList>
       </Article>
     </>
@@ -215,10 +272,11 @@ const LinkImage = styled.div`
   }
 `;
 
-const Image = styled.span`
+const Image = styled.span<{ thumbNail: string }>`
   width: 120px;
   display: inline-block;
-  background-image: url(/svgs/default.svg);
+  background-image: ${({ thumbNail }) =>
+    thumbNail ? `url(${thumbNail})` : 'url(/svgs/default.svg)'};
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center center;
