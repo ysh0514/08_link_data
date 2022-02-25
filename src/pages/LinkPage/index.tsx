@@ -51,7 +51,6 @@ const LinkPage: FC = () => {
     axios
       .get('https://storage-fe.fastraffic.io/homeworks/links')
       .then((res) => {
-        //배포
         setData(res.data);
       });
   }, []);
