@@ -48,11 +48,9 @@ const LinkPage: FC = () => {
   }, []);
 
   useEffect(() => {
-    axios
-      .get('https://storage-fe.fastraffic.io/homeworks/links')
-      .then((res) => {
-        setData(res.data);
-      });
+    axios.get('/homeworks/links').then((res) => {
+      setData(res.data);
+    });
   }, []);
 
   function formatBytes(bytes: number, decimals = 2) {
