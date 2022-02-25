@@ -48,10 +48,7 @@ src
 | 노션에서의 소통                                                                                                                |                                                     화면공유를 활용한 소통                                                     |
 | <img width="auto" src="https://user-images.githubusercontent.com/80146176/153054588-6194940a-a76d-4fde-a164-2efb3989d6e8.png"> | <img width="auto" src="https://user-images.githubusercontent.com/80146176/153054110-d7c4169e-3824-4903-8ca5-fc4aec044055.png"> |
 
-## ✍기능을 구현하기 위해 회의하였던 회의록
 
-# <a href="https://beneficial-sandpaper-029.notion.site/fc2a3ee520da4a6499a274be2e034a56">회의록 주소</a>
- <img width="50%" src="https://user-images.githubusercontent.com/80146176/154784321-0de51e71-aae1-4fa2-a3b9-687c0c2e7d79.png">
 
 ## 📝 기능
 
