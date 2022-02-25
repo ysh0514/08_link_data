@@ -7,8 +7,6 @@ import axios from 'axios';
 import { useMatch } from 'react-router';
 import { Link } from 'react-router-dom';
 import DetailPage from 'pages/DetailPage';
-import useInterval from 'use-interval';
-import { getSeconds } from 'date-fns';
 
 interface LinkData {
   created_at: number;
@@ -43,12 +41,11 @@ const LinkPage: FC = () => {
       setFetch((prev) => !prev);
       setInterval(() => {
         setFetch((prev) => !prev);
-        console.log('60초마다 갱신중입니다');
-      }, 60000);
-      console.log(`${60000 - nowTime * 1000}초 후에 갱신되었음 갱신되엇음`);
+        // console.log('60초마다 갱신중입니다');
+      }, 15000);
+      // console.log(`${60 - nowTime}초 후에 갱신되었음 갱신되엇음`);
     }, 60000 - nowTime * 1000);
-    console.log(nowTime);
-    console.log(`${60000 - nowTime * 1000}초 후에 갱신되었음 갱신되엇음`);
+    // console.log(`${60 - nowTime}초 후에 갱신되었음 갱신되엇음`);
   }, []);
 
   useEffect(() => {
@@ -70,7 +67,6 @@ const LinkPage: FC = () => {
   }
 
   const dateTimeFormatter = (time: number) => {
-    const second = new Date(time).getSeconds();
     const day = Number(
       ((time * 1000 - Date.now()) / (1000 * 60 * 60 * 24)).toFixed()
     );
@@ -81,6 +77,10 @@ const LinkPage: FC = () => {
       (((time * 1000 - Date.now()) / (1000 * 60)) % 60).toFixed()
     );
 
+    const second = Number(((time * 1000 - Date.now()) / 1000).toFixed());
+    // const min = +((second / 60) % 60).toFixed(0);
+    // const hour = +(second / (60 * 60)).toFixed(0);
+    // const day = +(second / (60 * 60 * 24)).toFixed(0);
     if (hour > 0 && hour < 48) {
       return `${hour}시간 ${min < 10 ? '0' + min : min}분`;
     } else if (hour >= 48) {
