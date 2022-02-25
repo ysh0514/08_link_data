@@ -48,7 +48,7 @@ const LinkPage: FC = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:4000/link').then((res) => {
+    axios.get('https://dry-hollows-03672.herokuapp.com/link').then((res) => {
       setData(res.data);
     });
   }, []);
