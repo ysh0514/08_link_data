@@ -26,7 +26,9 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "deploy": "aws s3 sync ./build s3://link-dataaaaaa --profile=link_data",
+    "invalidate": "aws cloudfront create-invalidation --profile=link_data --distribution-id E2F2EB5WSDD8HZ --paths /*"
   },
   "eslintConfig": {
     "extends": [
@@ -58,6 +60,5 @@
     "prettier": "^2.5.1",
     "prettier-eslint": "^13.0.0",
     "react-app-rewired": "^2.1.11"
-  },
-  "proxy": "https://storage-fe.fastraffic.io"
+  }
 }
