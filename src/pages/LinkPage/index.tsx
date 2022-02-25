@@ -1,134 +1,177 @@
-import React from "react";
-import type { FC } from "react";
-import Avatar from "components/Avatar";
-import styled from "styled-components";
-import colors from "styles/colors";
+import React, { useEffect, useState } from 'react';
+import type { FC } from 'react';
+import Avatar from 'components/Avatar';
+import styled from 'styled-components';
+import colors from 'styles/colors';
+import axios from 'axios';
+import { useMatch } from 'react-router';
+import { Link } from 'react-router-dom';
+import DetailPage from 'pages/DetailPage';
+import { copyUrl } from 'utils/utils';
+import { BASE_URL } from 'constants/constants';
+
+interface LinkData {
+  created_at: number;
+  key: string | undefined;
+  expires_at: number;
+  download_count: number;
+  count: number;
+  size: number;
+  summary: string;
+  thumbnailUrl: string;
+  files: {
+    key: string;
+    thumbnailUrl: string;
+    name: string;
+    size: number;
+  }[];
+  sent: {
+    subject: string;
+    content: string;
+    emails: string[];
+  };
+}
 
 const LinkPage: FC = () => {
+  const [data, setData] = useState<LinkData[]>([]);
+  const detailMatch = useMatch('/:key');
+  const [fetch, setFetch] = useState(true);
+
+  useEffect(() => {
+    const nowTime = new Date(Date.now()).getSeconds();
+    setTimeout(() => {
+      setFetch((prev) => !prev);
+      setInterval(() => {
+        setFetch((prev) => !prev);
+      }, 15000);
+    }, 60000 - nowTime * 1000);
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get('https://storage-fe.fastraffic.io/homeworks/links')
+      .then((res) => {
+        setData(res.data);
+      });
+  }, []);
+
+  function formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  const dateTimeFormatter = (time: number) => {
+    const day = Number(
+      ((time * 1000 - Date.now()) / (1000 * 60 * 60 * 24)).toFixed()
+    );
+    const hour = Number(
+      ((time * 1000 - Date.now()) / (1000 * 60 * 60)).toFixed()
+    );
+    const min = Number(
+      (((time * 1000 - Date.now()) / (1000 * 60)) % 60).toFixed()
+    );
+
+    if (hour > 0 && hour < 48) {
+      return `${hour}시간 ${min < 10 ? '0' + min : min}분`;
+    } else if (hour >= 48) {
+      return `${day}일`;
+    } else {
+      return '만료됨';
+    }
+  };
+
   return (
     <>
-      <Title>마이 링크</Title>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>제목</TableCell>
-            <TableCell>파일개수</TableCell>
-            <TableCell>크기</TableCell>
-            <TableCell>유효기간</TableCell>
-            <TableCell>받은사람</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>
-              <LinkInfo>
-                <LinkImage>
-                  <img
-                    referrerPolicy="no-referrer"
-                    src="/svgs/default.svg"
-                    alt=""
-                  />
-                </LinkImage>
-                <LinkTexts>
-                  <LinkTitle>로고파일</LinkTitle>
-                  <LinkUrl>localhost/7LF4MDLY</LinkUrl>
-                </LinkTexts>
-              </LinkInfo>
-              <span />
-            </TableCell>
-            <TableCell>
-              <span>파일개수</span>
-              <span>1</span>
-            </TableCell>
-            <TableCell>
-              <span>파일사이즈</span>
-              <span>10.86KB</span>
-            </TableCell>
-            <TableCell>
-              <span>유효기간</span>
-              <span>48시간 00분</span>
-            </TableCell>
-            <TableCell>
-              <span>받은사람</span>
-              <LinkReceivers>
-                <Avatar text="recruit@estmob.com" />
-              </LinkReceivers>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      {!detailMatch ? (
+        <>
+          <Title>마이 링크</Title>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>제목</TableCell>
+                <TableCell>파일개수</TableCell>
+                <TableCell>크기</TableCell>
+                <TableCell>유효기간</TableCell>
+                <TableCell>받은사람</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data &&
+                data.map((ele: LinkData, idx: number) => {
+                  const hour = Number(
+                    (
+                      (ele.expires_at * 1000 - Date.now()) /
+                      (1000 * 60 * 60)
+                    ).toFixed()
+                  );
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <LinkInfo>
+                          <LinkImage>
+                            <img
+                              referrerPolicy="no-referrer"
+                              src={
+                                ele.thumbnailUrl.slice(-3) !== 'svg'
+                                  ? ele.thumbnailUrl
+                                  : '/svgs/default.svg'
+                              }
+                              alt=""
+                            />
+                          </LinkImage>
+                          <LinkTexts>
+                            <Link to={`/${ele.key}`}>
+                              <LinkTitle>{ele.summary}</LinkTitle>
+                            </Link>
+                            <LinkUrl
+                              onClick={() =>
+                                copyUrl(
+                                  hour < 0 ? '만료됨' : `${BASE_URL}/${ele.key}`
+                                )
+                              }
+                            >
+                              {hour < 0 ? '만료됨' : `${BASE_URL}/${ele.key}`}
+                            </LinkUrl>
+                          </LinkTexts>
+                        </LinkInfo>
+                        <span />
+                      </TableCell>
+                      <TableCell>
+                        <span>파일개수</span>
+                        <span>{ele.count.toLocaleString()}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>파일사이즈</span>
+                        <span>{formatBytes(ele.size)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>유효기간</span>
+                        <span>{dateTimeFormatter(ele.expires_at)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span>받은사람</span>
+                        <LinkReceivers>
+                          {ele.sent && ele.sent.emails[0] && (
+                            <Avatar text={ele.sent.emails[0]} />
+                          )}
+                        </LinkReceivers>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </>
+      ) : (
+        <DetailPage key={Date.now() + '1'} data={data} />
+      )}
     </>
   );
 };
