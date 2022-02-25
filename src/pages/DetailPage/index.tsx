@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import colors from 'styles/colors';
 import Button from 'components/Button';
 import { useLocation } from 'react-router';
+import { copyUrl } from 'utils/utils';
+import { BASE_URL } from 'constants/constants';
 
 interface LinkData {
   created_at: number;
@@ -32,10 +34,8 @@ interface DetailProps {
 }
 
 const DetailPage = ({ data }: DetailProps) => {
-  // const [filesData, setFilesData] = useState(0);
   const location = useLocation();
-  const keyValue = location.pathname.slice(1); //홈페이지의 키값
-  // console.log(data); // 데이터도 받아왔으니
+  const keyValue = location.pathname.slice(1);
   const detailData = data.filter((item) => item.key === keyValue);
 
   const filesData = () => {
@@ -96,8 +96,6 @@ const DetailPage = ({ data }: DetailProps) => {
     ).toFixed()
   );
 
-  console.log(detailData[0].thumbnailUrl.slice(-3) === 'svg');
-
   return (
     <>
       <Header>
@@ -107,7 +105,13 @@ const DetailPage = ({ data }: DetailProps) => {
               ? detailData[0].sent?.subject
               : detailData[0].summary}
           </Title>
-          <Url>localhost/{detailData[0].key}</Url>
+          <Url
+            onClick={() =>
+              copyUrl(hour < 0 ? '만료됨' : `${BASE_URL}/${detailData[0].key}`)
+            }
+          >
+            {hour < 0 ? '만료됨' : `${BASE_URL}/${detailData[0].key}`}
+          </Url>
         </LinkInfo>
         {hour > 0 && (
           <DownloadButton onClick={onDownloadClick}>
@@ -131,7 +135,7 @@ const DetailPage = ({ data }: DetailProps) => {
                 : detailData[0].summary}
             </Bottom>
             <Top>다운로드 횟수</Top>
-            <Bottom>{detailData[0].count}</Bottom>
+            <Bottom>{detailData[0].download_count}</Bottom>
           </Texts>
           <LinkImage>
             <Image
