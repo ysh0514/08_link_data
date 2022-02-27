@@ -3,7 +3,7 @@ export const copyUrl = (text: string) => {
 
   navigator.clipboard.writeText(text).then(
     function () {
-      alert(text + ' 주소가 복사 되었습니다.');
+      alert(text + '주소가 복사 되었습니다.');
     },
     function () {
       console.log('error');
