@@ -17,7 +17,7 @@ src
  ┣ components  
  ┃ ┣ Avatar.tsx  
  ┃ ┣ Button.tsx  
- ┃ ┗ Container.tsx  
+ ┃ ┗ Container.tsx   
  ┣ constants  
  ┃ ┗ constants.ts  
  ┣ pages  
